@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "utils"
+version = "0.1.0"
+description = ""
+authors = ["Yossi Asher <yossi.asher@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+tensorflow = "*"
+numpy = "*"
+svgpathtools = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
