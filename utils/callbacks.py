@@ -1,4 +1,5 @@
 import wandb
+import numpy as np
 from tensorflow.keras.callbacks import Callback
 
 TABLE_NAME = "predictions"
@@ -25,6 +26,7 @@ class ValLog(Callback):
         for X, y, files, paths_list in self.dataset.epoc_data.values():
             val_preds = self.model.predict(X)
             for index, x in enumerate(X):
-                row = [files[index], val_preds[index], y[index]]
+                prediction = self.dataset.classes[np.argmax(val_preds[index])]
+                row = [files[index], prediction, self.dataset.classes[y[index]]]
                 predictions_table.add_data(*row)
         self.run.log({TABLE_NAME: predictions_table})
