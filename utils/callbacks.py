@@ -22,7 +22,7 @@ class ValLog(Callback):
         predictions_table = wandb.Table(columns=columns)
 
         # log image, predicted and actual labels, and all scores
-        for X, y, files, paths_list in self.dataset.epoc_data:
+        for X, y, files, paths_list in self.dataset.epoc_data.values():
             val_preds = self.model.predict(X)
             for index, x in enumerate(X):
                 row = [files[index], val_preds[index], y[index]]
