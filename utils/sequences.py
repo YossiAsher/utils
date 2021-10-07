@@ -1,24 +1,16 @@
-from svgpathtools import svg2paths, Path, CubicBezier, wsvg
-import tensorflow as tf
 import numpy as np
-import glob
-import uuid
-import pathlib
-import os
+import tensorflow as tf
+from svgpathtools import svg2paths, Path, CubicBezier, wsvg
 
 
 class DataGenerator(tf.keras.utils.Sequence):
-    'Generates data for Keras'
 
-    def __init__(self, path, files, batch_size, dim_size, input_shape, line_size=70, supervised=False, shuffle=True,
-                 debug=False):
-        """Initialization"""
+    def __init__(self, name, files, batch_size, dim_size, input_shape, line_size=70,
+                 supervised=False, shuffle=True, debug=False):
         self.input_shape = input_shape
         self.supervised = supervised
-        if path:
-            self.files = glob.glob(path + '/**/*.svg', recursive=True)
-        else:
-            self.files = files
+        self.files = files
+        self.name = name
         self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
         print("files: ", len(self.files))
         self.shuffle = shuffle
@@ -28,16 +20,16 @@ class DataGenerator(tf.keras.utils.Sequence):
             self.batch_size = len(self.files)
         self.dim_size = dim_size
         self.line_size = line_size
-        self.intersection_count = 0
         self.data = self.__init_data(self.files)
+        self.indexes = np.arange(len(self.data))
         self.on_epoch_end()
+        self.epoc_data = {}
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
         return int(np.floor(len(self.data) / self.batch_size))
 
     def __getitem__(self, index):
-        """Generate one batch of data"""
         # Generate indexes of the batch
         indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
 
@@ -45,18 +37,12 @@ class DataGenerator(tf.keras.utils.Sequence):
         data_temp = [self.data[k] for k in indexes]
 
         # Generate data
-        X, y = self.__data_generation(data_temp)
-
+        X, y, files, paths_list = self.__data_generation(data_temp)
+        self.epoc_data[index] = (X, y, files, paths_list)
         return X, y
 
     def on_epoch_end(self):
-        if self.debug:
-            self.fo = str(uuid.uuid1())
-            self.p = pathlib.Path(self.fo)
-            os.mkdir(self.p)
-
-        'Updates indexes after each epoch'
-        self.indexes = np.arange(len(self.data))
+        """Updates indexes after each epoch"""
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
@@ -73,34 +59,39 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Initialization
         X = np.zeros((self.batch_size, *self.input_shape))
         y = np.zeros(self.batch_size, dtype=int)
+        files = []
+        paths_list = []
 
         # Generate data
         for i, (paths, file) in enumerate(data_temp):
             # Store sample
             paths, segments, index = self.__normalize_path(paths)
-
+            random_line = None
             out = 0
             if self.supervised:
                 class_name = file.split('/')[-2]
                 out = self.classes.index(class_name)
             else:
-                randon_line, line_segment = self.__get_random_line()
+                random_line, line_segment = self.__get_random_line()
                 segments[index] = line_segment
                 for path in paths:
-                    if len(path.intersect(randon_line)) > 0:
+                    if len(path.intersect(random_line)) > 0:
                         out = 1
 
             if self.debug:
-                paths.append(randon_line)
+                if random_line:
+                    paths.append(random_line)
                 debug_file = str(
-                    self.p / (file.replace(self.path, '').replace('/', '_') + '_' + str(intersect) + '.svg'))
+                    self.p / (file.replace(self.path, '').replace('/', '_') + '.svg'))
                 wsvg(paths, filename=debug_file)
 
             if self.shuffle:
                 np.random.shuffle(segments)
-            X[i,] = segments
+            X[i, ] = segments
             y[i] = out
-        return X, y
+            files.append(file)
+            paths_list.append(paths)
+        return X, y, files, paths_list
 
     def __get_random_line(self):
         x1, y1 = np.random.uniform(0, 99, size=2)
@@ -128,13 +119,13 @@ class DataGenerator(tf.keras.utils.Sequence):
         paths = self.__normalize_path_scale(paths, max_total)
         for path in paths:
             for segment in path:
-                segments[index,] = self.__segment_to_array(0, segment)
+                segments[index, ] = self.__segment_to_array(0, segment)
                 index += 1
         return paths, segments, index
 
     def __segment_to_array(self, path_index, segment):
         reverse = np.random.randint(2)
-        if reverse == 0 and self.shuffle == True:
+        if reverse == 0 and self.shuffle:
             values = [path_index, segment.start.real, segment.start.imag,
                       segment.control1.real, segment.control1.imag,
                       segment.control2.real, segment.control2.imag,
