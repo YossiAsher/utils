@@ -2,6 +2,9 @@ import wandb
 from tensorflow.keras.callbacks import Callback
 
 TABLE_NAME = "predictions"
+PROJECT_NAME = 'svg-attention6'
+RUN_NAME = ''
+wandb.login()
 
 
 class ValLog(Callback):
@@ -11,6 +14,7 @@ class ValLog(Callback):
     def __init__(self, dataset=None):
         super().__init__()
         self.dataset = dataset
+        self.run = wandb.init(project=PROJECT_NAME, job_type="inference", name=RUN_NAME)
 
     def on_epoch_end(self, epoch, logs=None):
         columns = ["file", "prediction", "target"]
@@ -23,4 +27,4 @@ class ValLog(Callback):
             for index, x in enumerate(X):
                 row = [files[index], val_preds[index], y[index]]
                 predictions_table.add_data(*row)
-        wandb.run.log({TABLE_NAME: predictions_table})
+        self.run.log({TABLE_NAME: predictions_table})
