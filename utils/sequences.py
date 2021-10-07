@@ -39,8 +39,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y, files, paths_list = self.__data_generation(data_temp)
         self.epoc_data[index] = (X, y, files, paths_list)
-        print(index)
-        print(self.epoc_data.keys())
         return X, y
 
     def on_epoch_end(self):
