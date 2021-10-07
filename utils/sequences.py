@@ -23,13 +23,15 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.data = self.__init_data(self.files)
         self.indexes = np.arange(len(self.data))
         self.on_epoch_end()
-        self.epoc_data = []
+        self.epoc_data = {}
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
         return int(np.floor(len(self.data) / self.batch_size))
 
     def __getitem__(self, index):
+        print(index)
+        print(self.epoc_data)
         # Generate indexes of the batch
         indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
 
@@ -38,9 +40,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y, files, paths_list = self.__data_generation(data_temp)
-        if len(self.epoc_data) == self.__len__():
-            self.epoc_data = []
-        self.epoc_data.append((X, y, files, paths_list))
+        self.epoc_data[index] = (X, y, files, paths_list)
         return X, y
 
     def on_epoch_end(self):
