@@ -49,7 +49,7 @@ class DataGenerator(tf.keras.utils.Sequence):
     @staticmethod
     def write_to_files(X, y, files, paths_list, epoc_index, path):
         epoc_index_path = os.path.join(path, str(epoc_index))
-        os.makedirs(epoc_index_path)
+        os.makedirs(epoc_index_path, exist_ok=True)
         np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
         for index, file in enumerate(files):
             file_path = os.path.join(epoc_index_path, str(index), file)
