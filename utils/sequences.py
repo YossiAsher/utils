@@ -2,7 +2,7 @@ import os.path
 
 import numpy as np
 import tensorflow as tf
-from svgpathtools import svg2paths, Path, CubicBezier, wsvg
+from svgpathtools import svg2paths, Path, CubicBezier, wsvg, Line
 import tempfile
 import shutil
 import cairosvg
@@ -53,9 +53,10 @@ class DataGenerator(tf.keras.utils.Sequence):
         np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
         for index, file in enumerate(files):
             file_path = os.path.join(epoc_index_path, str(index), file)
-            print(file_path)
-            print(paths_list[index])
-            wsvg(paths_list[index], filename=file_path)
+            svg_paths = paths_list[index]
+            if len(svg_paths) == 0:
+                svg_paths = [Path(Line(200+300j, 250+350j))]
+            wsvg(svg_paths, filename=file_path)
             cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
                              parent_width=100, parent_height=100)
 
