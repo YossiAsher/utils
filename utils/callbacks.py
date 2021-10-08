@@ -18,7 +18,7 @@ class ValLog(Callback):
         predictions_table = wandb.Table(columns=columns)
 
         for i in range(10):
-            path = os.path.join(self.dataset.epoc_path, i, 'data.npz')
+            path = os.path.join(self.dataset.epoc_path.name, str(i), 'data.npz')
             loaded = np.load(path)
             X = loaded['X']
             y = loaded['y']
