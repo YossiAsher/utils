@@ -2,10 +2,11 @@ import os.path
 
 import numpy as np
 import tensorflow as tf
-from svgpathtools import svg2paths, Path, CubicBezier, wsvg, Line
+from svgpathtools import svg2paths
 import tempfile
 import shutil
-import cairosvg
+from helper import segment_to_array, get_random_line, normalize_path_rotated, \
+    normalize_path_align, normalize_path_scale
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -46,20 +47,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.write_to_files(X, y, files, paths_list, index, self.epoc_path.name)
         return X, y
 
-    @staticmethod
-    def write_to_files(X, y, files, paths_list, epoc_index, path):
-        epoc_index_path = os.path.join(path, str(epoc_index))
-        os.makedirs(epoc_index_path, exist_ok=True)
-        np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
-        for index, file in enumerate(files):
-            file_path = os.path.join(epoc_index_path, str(index), file)
-            svg_paths = paths_list[index]
-            if len(svg_paths) == 0:
-                svg_paths = [Path(Line(200+300j, 250+350j))]
-            wsvg(svg_paths, filename=file_path)
-            cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
-                             parent_width=100, parent_height=100)
-
     def on_epoch_end(self):
         """Updates indexes after each epoch"""
         if self.shuffle:
@@ -96,7 +83,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                 class_name = file.split('/')[-2]
                 out = self.classes.index(class_name)
             else:
-                random_line, line_segment = self.__get_random_line()
+                random_line, line_segment = get_random_line(self.line_size, self.shuffle)
                 segments[index] = line_segment
                 for path in paths:
                     if len(path.intersect(random_line)) > 0:
@@ -114,73 +101,14 @@ class DataGenerator(tf.keras.utils.Sequence):
             paths_list.append(paths)
         return X, y, files, paths_list
 
-    def __get_random_line(self):
-        x1, y1 = np.random.uniform(0, 99, size=2)
-        x2, y2 = np.random.uniform(0, self.line_size, size=2)
-        line = Path()
-        cubic_bezier = CubicBezier(complex(x1, y1), complex(x1, y1), complex(x1 + x2, y1 + y2),
-                                   complex(x1 + x2, y1 + y2))
-        line.append(cubic_bezier)
-        return line, self.__segment_to_array(1, cubic_bezier)
-
-    @staticmethod
-    def __normalize_path_rotated(paths):
-        new_paths = []
-        rad = np.random.uniform(0, 360)
-        for path in paths:
-            new_path = path.rotated(rad)
-            new_paths.append(new_path)
-        return new_paths
-
     def __normalize_path(self, paths):
         index = 0
         segments = np.zeros(self.input_shape)
-        paths = self.__normalize_path_rotated(paths)
-        max_total, paths = self.__normalize_path_align(paths)
-        paths = self.__normalize_path_scale(paths, max_total)
+        paths = normalize_path_rotated(paths)
+        max_total, paths = normalize_path_align(paths)
+        paths = normalize_path_scale(paths, max_total)
         for path in paths:
             for segment in path:
-                segments[index, ] = self.__segment_to_array(0, segment)
+                segments[index, ] = segment_to_array(0, segment, self.shuffle)
                 index += 1
         return paths, segments, index
-
-    def __segment_to_array(self, path_index, segment):
-        reverse = np.random.randint(2)
-        if reverse == 0 and self.shuffle:
-            values = [path_index, segment.start.real, segment.start.imag,
-                      segment.control1.real, segment.control1.imag,
-                      segment.control2.real, segment.control2.imag,
-                      segment.end.real, segment.end.imag]
-        else:
-            values = [path_index, segment.end.real, segment.end.imag,
-                      segment.control2.real, segment.control2.imag,
-                      segment.control1.real, segment.control1.imag,
-                      segment.start.real, segment.start.imag]
-        return np.array(values)
-
-    @staticmethod
-    def __normalize_path_scale(paths, max_total):
-        new_paths = []
-        for path in paths:
-            path = path.scaled(99 / max_total, 99 / max_total)
-            new_paths.append(path)
-        return new_paths
-
-    @staticmethod
-    def __normalize_path_align(paths):
-        x_max_total = 0
-        y_max_total = 0
-        new_paths = []
-        for path in paths:
-            if len(path) > 0:
-                path = path.scaled(1, -1)
-                x_min, x_max, y_min, y_max = path.bbox()
-                path = path.translated(complex(-x_min, -y_min))
-                x_min, x_max, y_min, y_max = path.bbox()
-                if x_max > x_max_total:
-                    x_max_total = x_max
-                if y_max > y_max_total:
-                    y_max_total = y_max
-                new_paths.append(path)
-        max_total = max(x_max_total, y_max_total)
-        return max_total, new_paths
