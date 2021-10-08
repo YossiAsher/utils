@@ -43,7 +43,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y, files, paths_list = self.__data_generation(data_temp)
-        self.write_to_files(X, y, files, paths_list, index, self.epoc_path)
+        self.write_to_files(X, y, files, paths_list, index, self.epoc_path.name)
         return X, y
 
     @staticmethod
