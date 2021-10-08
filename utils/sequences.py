@@ -2,6 +2,7 @@ import os.path
 import shutil
 import tempfile
 
+import numpy as np
 import tensorflow as tf
 from svgpathtools import svg2paths
 
