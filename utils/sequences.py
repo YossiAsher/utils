@@ -6,7 +6,8 @@ import numpy as np
 import tensorflow as tf
 from svgpathtools import svg2paths
 
-from helper import *
+from helper import normalize_path_rotated, get_random_line, normalize_path_align
+from helper import segment_to_array, normalize_path_scale
 
 
 class DataGenerator(tf.keras.utils.Sequence):
