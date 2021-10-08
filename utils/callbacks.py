@@ -29,3 +29,4 @@ class ValLog(Callback):
                 row = [epoch, self.dataset.name, "files[index]", target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({self.table_name: predictions_table})
+        self.dataset.clean_epoc_path()

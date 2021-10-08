@@ -65,6 +65,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
+    def clean_epoc_path(self):
         if self.epoc_path:
             shutil.rmtree(self.epoc_path.name)
         self.epoc_path = tempfile.TemporaryDirectory()
