@@ -1,6 +1,11 @@
+import os.path
+
 import numpy as np
 import tensorflow as tf
 from svgpathtools import svg2paths, Path, CubicBezier, wsvg
+import tempfile
+import shutil
+import cairosvg
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -22,8 +27,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.line_size = line_size
         self.data = self.__init_data(self.files)
         self.indexes = np.arange(len(self.data))
+        self.epoc_path = tempfile.TemporaryDirectory()
         self.on_epoch_end()
-        self.epoc_data = {}
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
@@ -38,13 +43,32 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y, files, paths_list = self.__data_generation(data_temp)
-        self.epoc_data[index] = (X, y, files, paths_list)
+        self.write_to_files(X, y, files, paths_list, index, self.epoc_path)
         return X, y
+
+    @staticmethod
+    def write_to_files(X, y, files, paths_list, epoc_index, path):
+        epoc_index_path = os.path.join(path, epoc_index)
+        print(epoc_index_path)
+        np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
+        loaded = np.load(os.path.join(epoc_index_path, 'data.npz'))
+        X = loaded['X']
+        print("X", X.shape)
+        y = loaded['y']
+        print("y", y.shape)
+        for index, file in enumerate(files):
+            file_path = os.path.join(epoc_index_path, str(index), file)
+            wsvg(paths_list[index], filename=file_path)
+            cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
+                             parent_width=100, parent_height=100)
 
     def on_epoch_end(self):
         """Updates indexes after each epoch"""
         if self.shuffle:
             np.random.shuffle(self.indexes)
+
+        shutil.rmtree(self.epoc_path.name)
+        self.epoc_path = tempfile.TemporaryDirectory()
 
     @staticmethod
     def __init_data(files):
@@ -81,9 +105,6 @@ class DataGenerator(tf.keras.utils.Sequence):
             if self.debug:
                 if random_line:
                     paths.append(random_line)
-                debug_file = str(
-                    self.p / (file.replace(self.path, '').replace('/', '_') + '.svg'))
-                wsvg(paths, filename=debug_file)
 
             if self.shuffle:
                 np.random.shuffle(segments)
