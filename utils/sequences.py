@@ -27,7 +27,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.line_size = line_size
         self.data = self.__init_data(self.files)
         self.indexes = np.arange(len(self.data))
-        self.epoc_path = None
+        self.epoc_path = tempfile.TemporaryDirectory()
         self.on_epoch_end()
 
     def __len__(self):
