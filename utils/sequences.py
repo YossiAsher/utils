@@ -49,16 +49,12 @@ class DataGenerator(tf.keras.utils.Sequence):
     @staticmethod
     def write_to_files(X, y, files, paths_list, epoc_index, path):
         epoc_index_path = os.path.join(path, str(epoc_index))
-        print(epoc_index_path)
         os.makedirs(epoc_index_path)
         np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
-        loaded = np.load(os.path.join(epoc_index_path, 'data.npz'))
-        X = loaded['X']
-        print("X", X.shape)
-        y = loaded['y']
-        print("y", y.shape)
         for index, file in enumerate(files):
             file_path = os.path.join(epoc_index_path, str(index), file)
+            print(file_path)
+            print(paths_list[index])
             wsvg(paths_list[index], filename=file_path)
             cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
                              parent_width=100, parent_height=100)
