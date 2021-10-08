@@ -5,10 +5,10 @@ from tensorflow.keras.callbacks import Callback
 
 class ValLog(Callback):
 
-    def __init__(self, dataset=None, table="predictions", project="svg-attention6", run=""):
+    def __init__(self, dataset=None, project="svg-attention6", run=""):
         super().__init__()
         self.dataset = dataset
-        self.table_name = table
+        self.table_name = self.dataset.name
         self.run = wandb.init(project=project, job_type="inference", name=run)
 
     def on_epoch_end(self, epoch, logs=None):
