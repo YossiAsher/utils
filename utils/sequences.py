@@ -1,11 +1,11 @@
 import os.path
+import shutil
+import tempfile
 
-import numpy as np
 import tensorflow as tf
 from svgpathtools import svg2paths
-import tempfile
-import shutil
-import helper
+
+from helper import *
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -82,7 +82,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                 class_name = file.split('/')[-2]
                 out = self.classes.index(class_name)
             else:
-                random_line, line_segment = helper.get_random_line(self.line_size, self.shuffle)
+                random_line, line_segment = get_random_line(self.line_size, self.shuffle)
                 segments[index] = line_segment
                 for path in paths:
                     if len(path.intersect(random_line)) > 0:
@@ -103,11 +103,11 @@ class DataGenerator(tf.keras.utils.Sequence):
     def __normalize_path(self, paths):
         index = 0
         segments = np.zeros(self.input_shape)
-        paths = helper.normalize_path_rotated(paths)
-        max_total, paths = helper.normalize_path_align(paths)
-        paths = helper.normalize_path_scale(paths, max_total)
+        paths = normalize_path_rotated(paths)
+        max_total, paths = normalize_path_align(paths)
+        paths = normalize_path_scale(paths, max_total)
         for path in paths:
             for segment in path:
-                segments[index, ] = helper.segment_to_array(0, segment, self.shuffle)
+                segments[index, ] = segment_to_array(0, segment, self.shuffle)
                 index += 1
         return paths, segments, index
