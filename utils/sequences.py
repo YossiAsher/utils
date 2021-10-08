@@ -27,7 +27,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.line_size = line_size
         self.data = self.__init_data(self.files)
         self.indexes = np.arange(len(self.data))
-        self.epoc_path = tempfile.TemporaryDirectory()
+        self.epoc_path = None
         self.on_epoch_end()
 
     def __len__(self):
@@ -50,6 +50,7 @@ class DataGenerator(tf.keras.utils.Sequence):
     def write_to_files(X, y, files, paths_list, epoc_index, path):
         epoc_index_path = os.path.join(path, str(epoc_index))
         print(epoc_index_path)
+        os.makedirs(epoc_index_path)
         np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
         loaded = np.load(os.path.join(epoc_index_path, 'data.npz'))
         X = loaded['X']
@@ -67,7 +68,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
-        shutil.rmtree(self.epoc_path.name)
+        if self.epoc_path:
+            shutil.rmtree(self.epoc_path.name)
         self.epoc_path = tempfile.TemporaryDirectory()
 
     @staticmethod
