@@ -10,6 +10,7 @@ tensorflow = "*"
 numpy = "*"
 svgpathtools = "*"
 wandb = "*"
+cairosvg = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
