@@ -15,7 +15,7 @@ class ValLog(Callback):
         self.run = wandb.init(project=project, job_type="inference", name=run)
 
     def on_epoch_end(self, epoch, logs=None):
-        columns = ["epoch", "dataset", "file", "svg", "target", "prediction"]
+        columns = ["epoch", "dataset", "location", "file", "svg", "target", "prediction"]
         predictions_table = wandb.Table(columns=columns)
 
         for i in range(len(self.dataset)):
@@ -30,7 +30,8 @@ class ValLog(Callback):
                 prediction = self.dataset.classes[np.argmax(predictions[index])]
                 png_file = glob.glob(f'{epoc_path_index}/{index}/**/*.png', recursive=True)[0]
                 file = png_file[png_file.index(png_file.split('/')[-2]):]
-                row = [epoch, self.dataset.name, file, wandb.Image(png_file), target, prediction]
+                row = [epoch, self.dataset.name, self.dataset.epoc_path.name,
+                       file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({f"{self.table_name}_{epoch}": predictions_table})
         # self.dataset.clean_epoc_path()
