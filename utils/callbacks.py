@@ -15,22 +15,22 @@ class ValLog(Callback):
         self.run = wandb.init(project=project, job_type="inference", name=run)
 
     def on_epoch_end(self, epoch, logs=None):
-        columns = ["epoch", "dataset", "location", "file", "svg", "target", "prediction"]
+        columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
         predictions_table = wandb.Table(columns=columns)
 
-        for i in range(len(self.dataset)):
-            epoc_path_index = os.path.join(self.dataset.epoc_path.name, str(i))
+        for batch in range(len(self.dataset)):
+            epoc_path_index = os.path.join(self.dataset.epoc_path.name, str(batch))
             data_path = os.path.join(epoc_path_index, 'data.npz')
             loaded = np.load(data_path, allow_pickle=True)
             X = loaded['X']
             y = loaded['y']
             predictions = self.model.predict(X)
-            for index in range(len(X)):
+            for index in range(y.shape[0]):
                 target = self.dataset.classes[y[index]]
                 prediction = self.dataset.classes[np.argmax(predictions[index])]
                 png_file = glob.glob(f'{epoc_path_index}/{index}/**/*.png', recursive=True)[0]
                 file = png_file.split('/')[-1]
-                row = [epoch, self.dataset.name, self.dataset.epoc_path.name,
+                row = [epoch, batch, index, self.dataset.name, self.dataset.epoc_path.name,
                        file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({f"{self.table_name}_{epoch}": predictions_table})
