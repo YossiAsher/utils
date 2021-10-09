@@ -75,6 +75,7 @@ def write_to_files(X, y, files, paths_list, epoc_index, path):
     os.makedirs(epoc_index_path, exist_ok=True)
     np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
     for index, file in enumerate(files):
+        file = f"{file.split('/')[-2]}_{file.split('/')[-1]}"
         file_path = os.path.join(epoc_index_path, str(index), file)
         svg_paths = paths_list[index]
         if len(svg_paths) == 0:
