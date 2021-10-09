@@ -25,11 +25,11 @@ class ValLog(Callback):
             X = loaded['X']
             y = loaded['y']
             predictions = self.model.predict(X)
-            for index, x in enumerate(X):
+            for index in range(len(X)):
                 target = self.dataset.classes[y[index]]
                 prediction = self.dataset.classes[np.argmax(predictions[index])]
                 png_file = glob.glob(f'{epoc_path_index}/{index}/**/*.png', recursive=True)[0]
-                file = png_file[png_file.index(png_file.split('/')[-2]):]
+                file = png_file.split('/')[-1]
                 row = [epoch, self.dataset.name, self.dataset.epoc_path.name,
                        file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
