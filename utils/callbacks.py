@@ -32,5 +32,5 @@ class ValLog(Callback):
                 file = png_file[png_file.index(png_file.split('/')[-2]):]
                 row = [epoch, self.dataset.name, file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
-        self.run.log({self.table_name: predictions_table})
+        self.run.log({f"{self.table_name}_{epoch}": predictions_table})
         # self.dataset.clean_epoc_path()
