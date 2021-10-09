@@ -21,7 +21,7 @@ class ValLog(Callback):
         for i in range(len(self.dataset)):
             epoc_path_index = os.path.join(self.dataset.epoc_path.name, str(i))
             data_path = os.path.join(epoc_path_index, 'data.npz')
-            loaded = np.load(data_path)
+            loaded = np.load(data_path, allow_pickle=True)
             X = loaded['X']
             y = loaded['y']
             predictions = self.model.predict(X)
@@ -33,4 +33,4 @@ class ValLog(Callback):
                 row = [epoch, self.dataset.name, file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({self.table_name: predictions_table})
-        self.dataset.clean_epoc_path()
+        # self.dataset.clean_epoc_path()
