@@ -6,16 +6,14 @@ import tempfile
 import cairosvg
 import numpy as np
 import tensorflow as tf
-from svgpathtools import Path, wsvg, Line, CubicBezier, svg2paths
+from svgpathtools import Path, wsvg, CubicBezier, svg2paths
 
 
 def init_data(files):
     data = []
     for file in files:
         paths, attributes = svg2paths(file)
-        if len(paths) == 0:
-            print(paths)
-        else:
+        if len(paths) > 0:
             data.append((paths, file))
     return data
 
@@ -83,7 +81,7 @@ def get_random_line(line_size, shuffle):
 
 def write_to_files(X, y, files, paths_list, batch, path):
     batch_path = os.path.join(path, str(batch))
-    os.makedirs(batch_path)
+    os.makedirs(batch_path, exist_ok=True)
     np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
     for index, file in enumerate(files):
         file = f"{file.split('/')[-2]}_{file.split('/')[-1]}"
@@ -106,8 +104,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.name = name
         self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
         self.classes.sort()
-        print("files: ", len(self.files))
-        print("classes: ", self.classes)
         self.shuffle = shuffle
         self.batch_size = batch_size
         if self.batch_size == -1:
@@ -118,6 +114,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.indexes = np.arange(len(self.data))
         self.epoc_path = tempfile.TemporaryDirectory()
         self.on_epoch_end()
+        print("data: ", len(self.data))
+        print("classes: ", self.classes)
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
