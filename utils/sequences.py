@@ -88,7 +88,7 @@ def write_to_files(X, y, files, paths_list, epoc_index, path):
 class DataGenerator(tf.keras.utils.Sequence):
 
     def __init__(self, name, files, batch_size, dim_size, input_shape, line_size=70,
-                 supervised=False, shuffle=True, debug=False):
+                 supervised=False, shuffle=True):
         self.input_shape = input_shape
         self.supervised = supervised
         self.files = files
@@ -96,7 +96,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
         print("files: ", len(self.files))
         self.shuffle = shuffle
-        self.debug = debug
         self.batch_size = batch_size
         if self.batch_size == -1:
             self.batch_size = len(self.files)
@@ -164,10 +163,6 @@ class DataGenerator(tf.keras.utils.Sequence):
                 for path in paths:
                     if len(path.intersect(random_line)) > 0:
                         out = 1
-
-            if self.debug:
-                if random_line:
-                    paths.append(random_line)
 
             if self.shuffle:
                 np.random.shuffle(segments)
