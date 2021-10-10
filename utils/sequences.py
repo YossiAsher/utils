@@ -14,8 +14,9 @@ def init_data(files):
     for file in files:
         paths, attributes = svg2paths(file)
         if len(paths) == 0:
-            print("*********")
-        data.append((paths, file))
+            print(paths)
+        else:
+            data.append((paths, file))
     return data
 
 
