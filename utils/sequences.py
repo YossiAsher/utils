@@ -102,7 +102,9 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.files = set(files)
         self.name = name
         self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
+        self.classes.sort()
         print("files: ", len(self.files))
+        print("classes: ", self.classes)
         self.shuffle = shuffle
         self.batch_size = batch_size
         if self.batch_size == -1:
