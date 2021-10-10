@@ -112,6 +112,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.dim_size = dim_size
         self.line_size = line_size
         self.data = init_data(self.files)
+        self.indexes = np.arange(len(self.data))
         self.epoc_path = tempfile.TemporaryDirectory()
         self.on_epoch_end()
 
@@ -133,7 +134,6 @@ class DataGenerator(tf.keras.utils.Sequence):
 
     def on_epoch_end(self):
         """Updates indexes after each epoch"""
-        self.indexes = np.arange(len(self.data))
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
