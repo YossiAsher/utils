@@ -9,6 +9,14 @@ import tensorflow as tf
 from svgpathtools import Path, wsvg, Line, CubicBezier, svg2paths
 
 
+def init_data(files):
+    data = []
+    for file in files:
+        paths, attributes = svg2paths(file)
+        data.append((paths, file))
+    return data
+
+
 def segment_to_array(path_index, segment, shuffle):
     reverse = np.random.randint(2)
     if reverse == 0 and shuffle:
@@ -91,7 +99,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                  supervised=False, shuffle=True):
         self.input_shape = input_shape
         self.supervised = supervised
-        self.files = files
+        self.files = set(files)
         self.name = name
         self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
         print("files: ", len(self.files))
@@ -101,7 +109,7 @@ class DataGenerator(tf.keras.utils.Sequence):
             self.batch_size = len(self.files)
         self.dim_size = dim_size
         self.line_size = line_size
-        self.data = self.__init_data(self.files)
+        self.data = init_data(self.files)
         self.indexes = np.arange(len(self.data))
         self.epoc_path = tempfile.TemporaryDirectory()
         self.on_epoch_end()
@@ -132,14 +140,6 @@ class DataGenerator(tf.keras.utils.Sequence):
             shutil.rmtree(self.epoc_path.name, ignore_errors=True)
         self.epoc_path = tempfile.TemporaryDirectory()
 
-    @staticmethod
-    def __init_data(files):
-        data = []
-        for file in files:
-            paths, attributes = svg2paths(file)
-            data.append((paths, file))
-        return data
-
     def __data_generation(self, data_temp):
         """Generates data containing batch_size samples"""
         # Initialization
@@ -150,9 +150,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         for i, (paths, file) in enumerate(data_temp):
-            # Store sample
             paths, segments, index = self.__normalize_path(paths)
-            random_line = None
             out = 0
             if self.supervised:
                 class_name = file.split('/')[-2]
