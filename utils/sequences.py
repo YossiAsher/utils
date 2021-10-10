@@ -13,6 +13,8 @@ def init_data(files):
     data = []
     for file in files:
         paths, attributes = svg2paths(file)
+        if len(paths) == 0:
+            print("*********")
         data.append((paths, file))
     return data
 
@@ -78,16 +80,16 @@ def get_random_line(line_size, shuffle):
     return line, segment_to_array(1, cubic_bezier, shuffle)
 
 
-def write_to_files(X, y, files, paths_list, epoc_index, path):
-    epoc_index_path = os.path.join(path, str(epoc_index))
-    os.makedirs(epoc_index_path, exist_ok=True)
-    np.savez_compressed(os.path.join(epoc_index_path, 'data'), X=X, y=y)
+def write_to_files(X, y, files, paths_list, batch, path):
+    batch_path = os.path.join(path, str(batch))
+    os.makedirs(batch_path)
+    np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
     for index, file in enumerate(files):
         file = f"{file.split('/')[-2]}_{file.split('/')[-1]}"
-        file_path = os.path.join(epoc_index_path, str(index), file)
+        file_path = os.path.join(batch_path, str(index), file)
         svg_paths = paths_list[index]
-        if len(svg_paths) == 0:
-            svg_paths = [Path(Line(200 + 300j, 250 + 350j))]
+        # if len(svg_paths) == 0:
+        #     svg_paths = [Path(Line(200 + 300j, 250 + 350j))]
         wsvg(svg_paths, filename=file_path)
         cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
                          parent_width=100, parent_height=100)
