@@ -84,11 +84,9 @@ def write_to_files(X, y, files, paths_list, batch, path):
     os.makedirs(batch_path, exist_ok=True)
     np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
     for index, file in enumerate(files):
-        file = f"{file.split('/')[-2]}_{file.split('/')[-1]}"
+        file = f"{file.split('/')[-2]}-{file.split('/')[-1]}"
         file_path = os.path.join(batch_path, str(index), file)
         svg_paths = paths_list[index]
-        # if len(svg_paths) == 0:
-        #     svg_paths = [Path(Line(200 + 300j, 250 + 350j))]
         wsvg(svg_paths, filename=file_path)
         cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
                          parent_width=100, parent_height=100)
