@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import Callback
 
 class ValLog(Callback):
 
-    def __init__(self, datasets=None, table="predictions", project="svg-attention6", run=""):
+    def __init__(self, datasets=None, table="predictions", project=None, run=None):
         super().__init__()
         self.datasets = datasets
         self.table_name = table
