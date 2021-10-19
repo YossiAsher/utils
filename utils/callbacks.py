@@ -17,9 +17,9 @@ class ValLog(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         for dataset in self.datasets:
-            self.run(epoch, dataset)
+            self.ex_dataset(epoch, dataset)
 
-    def run(self, epoch, dataset):
+    def ex_dataset(self, epoch, dataset):
         predictions_table = wandb.Table(columns=self.columns)
         for batch in range(len(dataset)):
             epoc_path_index = os.path.join(self.dataset.epoc_path.name, str(batch))
