@@ -11,6 +11,7 @@ numpy = "*"
 svgpathtools = "*"
 wandb = "*"
 cairosvg = "*"
+pycocotools = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
