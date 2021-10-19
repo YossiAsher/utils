@@ -99,7 +99,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                  supervised=False, shuffle=True, debug=False):
         self.input_shape = input_shape
         self.supervised = supervised
-        self.name = task
+        self.task = task
         self.debug = debug
         self.path = f"{path}/{task}"
         self.files = set(glob.glob(f"{self.path}/**/*.svg", recursive=True))
