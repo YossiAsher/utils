@@ -19,9 +19,9 @@ def init_data(files):
     return data
 
 
-def segment_to_array(path_index, segment, shuffle):
+def segment_to_array(path_index, segment):
     reverse = np.random.randint(2)
-    if reverse == 0 and shuffle:
+    if reverse == 0:
         values = [path_index, segment.start.real, segment.start.imag,
                   segment.control1.real, segment.control1.imag,
                   segment.control2.real, segment.control2.imag,
@@ -70,14 +70,14 @@ def normalize_path_rotated(paths):
     return new_paths
 
 
-def get_random_line(line_size, shuffle):
+def get_random_line(line_size):
     x1, y1 = np.random.uniform(0, 99, size=2)
     x2, y2 = np.random.uniform(0, line_size, size=2)
     line = Path()
     cubic_bezier = CubicBezier(complex(x1, y1), complex(x1, y1), complex(x1 + x2, y1 + y2),
                                complex(x1 + x2, y1 + y2))
     line.append(cubic_bezier)
-    return line, segment_to_array(1, cubic_bezier, shuffle)
+    return line, segment_to_array(1, cubic_bezier)
 
 
 def write_to_files(X, y, files, paths_list, batch, path):
@@ -161,7 +161,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                 class_name = file.split('/')[-2]
                 out = self.classes.index(class_name)
             else:
-                random_line, line_segment = get_random_line(self.line_size, self.shuffle)
+                random_line, line_segment = get_random_line(self.line_size)
                 segments[index] = line_segment
                 for path in paths:
                     if len(path.intersect(random_line)) > 0:
@@ -183,6 +183,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         paths = normalize_path_scale(paths, max_total)
         for path in paths:
             for segment in path:
-                segments[index, ] = segment_to_array(0, segment, self.shuffle)
+                segments[index, ] = segment_to_array(0, segment)
                 index += 1
         return paths, segments, index
