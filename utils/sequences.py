@@ -167,8 +167,8 @@ class DataGenerator(tf.keras.utils.Sequence):
                     if len(path.intersect(random_line)) > 0:
                         out = 1
 
-            if self.shuffle:
-                np.random.shuffle(segments)
+            # if self.shuffle:
+            np.random.shuffle(segments)
             X[i, ] = segments
             y[i] = out
             files.append(file)
