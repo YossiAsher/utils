@@ -2,6 +2,7 @@ import os
 import os.path
 import shutil
 import tempfile
+import glob
 
 import cairosvg
 import numpy as np
@@ -94,13 +95,15 @@ def write_to_files(X, y, files, paths_list, batch, path):
 
 class DataGenerator(tf.keras.utils.Sequence):
 
-    def __init__(self, name, files, batch_size, dim_size, input_shape, line_size=70,
-                 supervised=False, shuffle=True):
+    def __init__(self, task, path, batch_size, dim_size, input_shape, line_size=70,
+                 supervised=False, shuffle=True, debug=False):
         self.input_shape = input_shape
         self.supervised = supervised
-        self.files = set(files)
-        self.name = name
-        self.classes = list(set([f.split('/')[-2] for f in self.files])) if supervised else [0, 1]
+        self.name = task
+        self.debug = debug
+        self.path = f"{path}/{task}"
+        self.files = set(glob.glob(f"{self.path}/**/*.svg", recursive=True))
+        self.classes = os.listdir()
         self.classes.sort()
         self.shuffle = shuffle
         self.batch_size = batch_size
@@ -128,7 +131,8 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y, files, paths_list = self.__data_generation(data_temp)
-        write_to_files(X, y, files, paths_list, index, self.epoc_path.name)
+        if self.debug:
+            write_to_files(X, y, files, paths_list, index, self.epoc_path.name)
         return X, y
 
     def on_epoch_end(self):
