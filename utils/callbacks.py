@@ -20,9 +20,13 @@ class ValLog(Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.run = wandb.init(project=self.project, job_type="inference", name=self.run)
         for dataset in self.datasets:
-            self.ex_dataset(epoch, dataset)
+            self.send_results(epoch, dataset)
 
-    def ex_dataset(self, epoch, dataset):
+    def on_epoch_begin(self, epoch, logs=None):
+        for dataset in self.datasets:
+            dataset.clean_epoc_path()
+
+    def send_results(self, epoch, dataset):
         print(epoch, dataset.task)
         predictions_table = wandb.Table(columns=self.columns)
         for batch in range(len(dataset)):
@@ -43,4 +47,3 @@ class ValLog(Callback):
                        file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({f"{self.table_name}_{dataset.task}": predictions_table})
-        self.dataset.clean_epoc_path()
