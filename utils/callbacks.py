@@ -23,7 +23,9 @@ class ValLog(Callback):
             self.send_results(epoch, dataset)
 
     def on_epoch_begin(self, epoch, logs=None):
+        print(epoch, logs)
         for dataset in self.datasets:
+            print(dataset.task)
             dataset.clean_epoc_path()
 
     def send_results(self, epoch, dataset):
