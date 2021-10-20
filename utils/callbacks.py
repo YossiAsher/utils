@@ -1,5 +1,6 @@
 import json
 import os.path
+import uuid
 
 import numpy as np
 import wandb
@@ -10,12 +11,14 @@ class ValLog(Callback):
 
     def __init__(self, datasets=None, table="predictions", project=None, run=None):
         super().__init__()
+        self.project = project
+        self.run = run
         self.datasets = datasets
         self.table_name = table
-        self.run = wandb.init(project=project, job_type="inference", name=run)
         self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
 
     def on_epoch_end(self, epoch, logs=None):
+        self.run = wandb.init(project=self.project, job_type="inference", name=self.run)
         for dataset in self.datasets:
             self.ex_dataset(epoch, dataset)
 
@@ -39,4 +42,4 @@ class ValLog(Callback):
                        file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         self.run.log({f"{self.table_name}_{dataset.task}": predictions_table})
-        # self.dataset.clean_epoc_path()
+        self.dataset.clean_epoc_path()
