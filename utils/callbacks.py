@@ -1,9 +1,8 @@
 import json
 import os.path
-import glob
 
-import wandb
 import numpy as np
+import wandb
 from tensorflow.keras.callbacks import Callback
 
 

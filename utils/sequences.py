@@ -1,14 +1,13 @@
+import glob
+import json
 import os
 import os.path
 import shutil
 import tempfile
-import glob
-import json
 
-import cairosvg
 import numpy as np
 import tensorflow as tf
-from svgpathtools import Path, wsvg, CubicBezier, svg2paths
+from svgpathtools import Path, CubicBezier, svg2paths
 
 
 def init_data(files):
@@ -86,13 +85,6 @@ def write_to_files(X, y, files, batch_path):
     np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
     with open(os.path.join(batch_path, 'data.json'), 'w') as f:
         json.dump(files, f)
-    # for index, file in enumerate(files):
-    #     file = f"{file.split('/')[-2]}-{file.split('/')[-1]}"
-    #     file_path = os.path.join(batch_path, str(index), file)
-    #     svg_paths = paths_list[index]
-    #     wsvg(svg_paths, filename=file_path)
-    #     cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
-    #                      parent_width=100, parent_height=100)
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -153,7 +145,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         X = np.zeros((self.batch_size, *self.input_shape))
         y = np.zeros(self.batch_size, dtype=int)
         files = []
-        # paths_list = []
 
         # Generate data
         for i, (paths, file) in enumerate(data_temp):
@@ -173,7 +164,6 @@ class DataGenerator(tf.keras.utils.Sequence):
             X[i, ] = segments
             y[i] = out
             files.append(file)
-            # paths_list.append(paths)
         return X, y, files
 
     def __normalize_path(self, paths):
