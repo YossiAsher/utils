@@ -135,9 +135,11 @@ class DataGenerator(tf.keras.utils.Sequence):
             np.random.shuffle(self.indexes)
 
     def clean_epoc_path(self):
+        print(self.epoc_path.name)
         if self.epoc_path and os.path.exists(self.epoc_path.name):
             shutil.rmtree(self.epoc_path.name, ignore_errors=True)
         self.epoc_path = tempfile.TemporaryDirectory()
+        print(self.epoc_path.name)
 
     def __data_generation(self, data_temp):
         """Generates data containing batch_size samples"""
