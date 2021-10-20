@@ -3,6 +3,7 @@ import os.path
 import shutil
 import tempfile
 import glob
+import json
 
 import cairosvg
 import numpy as np
@@ -80,17 +81,18 @@ def get_random_line(line_size):
     return line, segment_to_array(1, cubic_bezier)
 
 
-def write_to_files(X, y, files, paths_list, batch, path):
-    batch_path = os.path.join(path, str(batch))
+def write_to_files(X, y, files, batch_path):
     os.makedirs(batch_path, exist_ok=True)
     np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
-    for index, file in enumerate(files):
-        file = f"{file.split('/')[-2]}-{file.split('/')[-1]}"
-        file_path = os.path.join(batch_path, str(index), file)
-        svg_paths = paths_list[index]
-        wsvg(svg_paths, filename=file_path)
-        cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
-                         parent_width=100, parent_height=100)
+    with open(os.path.join(batch_path, 'data.json'), 'w') as f:
+        json.dump(files, f)
+    # for index, file in enumerate(files):
+    #     file = f"{file.split('/')[-2]}-{file.split('/')[-1]}"
+    #     file_path = os.path.join(batch_path, str(index), file)
+    #     svg_paths = paths_list[index]
+    #     wsvg(svg_paths, filename=file_path)
+    #     cairosvg.svg2png(url=file_path, write_to=file_path.replace('.svg', '.png'),
+    #                      parent_width=100, parent_height=100)
 
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -130,9 +132,9 @@ class DataGenerator(tf.keras.utils.Sequence):
         data_temp = [self.data[k] for k in indexes]
 
         # Generate data
-        X, y, files, paths_list = self.__data_generation(data_temp)
+        X, y, files = self.__data_generation(data_temp)
         if self.debug:
-            write_to_files(X, y, files, paths_list, index, self.epoc_path.name)
+            write_to_files(X, y, files, os.path.join(self.epoc_path.name, str(index)))
         return X, y
 
     def on_epoch_end(self):
@@ -151,7 +153,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         X = np.zeros((self.batch_size, *self.input_shape))
         y = np.zeros(self.batch_size, dtype=int)
         files = []
-        paths_list = []
+        # paths_list = []
 
         # Generate data
         for i, (paths, file) in enumerate(data_temp):
@@ -167,13 +169,12 @@ class DataGenerator(tf.keras.utils.Sequence):
                     if len(path.intersect(random_line)) > 0:
                         out = 1
 
-            # if self.shuffle:
             np.random.shuffle(segments)
             X[i, ] = segments
             y[i] = out
             files.append(file)
-            paths_list.append(paths)
-        return X, y, files, paths_list
+            # paths_list.append(paths)
+        return X, y, files
 
     def __normalize_path(self, paths):
         index = 0

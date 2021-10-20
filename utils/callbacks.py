@@ -1,3 +1,4 @@
+import json
 import os.path
 import glob
 
@@ -22,17 +23,19 @@ class ValLog(Callback):
     def ex_dataset(self, epoch, dataset):
         predictions_table = wandb.Table(columns=self.columns)
         for batch in range(len(dataset)):
-            epoc_path_index = os.path.join(dataset.epoc_path.name, str(batch))
-            data_path = os.path.join(epoc_path_index, 'data.npz')
+            epoc_batch_path = os.path.join(dataset.epoc_path.name, str(batch))
+            data_path = os.path.join(epoc_batch_path, 'data.npz')
             loaded = np.load(data_path, allow_pickle=True)
             X = loaded['X']
             y = loaded['y']
+            with open(os.path.join(batch_path, 'data.json'), 'r') as f:
+                files = json.load(f)
             predictions = self.model.predict(X)
             for index in range(y.shape[0]):
                 target = dataset.classes[y[index]]
                 prediction = dataset.classes[np.argmax(predictions[index])]
-                png_file = glob.glob(f'{epoc_path_index}/{index}/**/*.png', recursive=True)[0]
-                file = png_file.split('/')[-1]
+                png_file = files[index].replace('svg', 'png')
+                file = png_file.split('/')[-1].split('.')[0]
                 row = [epoch, batch, index, dataset.task, dataset.epoc_path.name,
                        file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
