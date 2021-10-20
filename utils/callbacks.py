@@ -28,7 +28,7 @@ class ValLog(Callback):
             loaded = np.load(data_path, allow_pickle=True)
             X = loaded['X']
             y = loaded['y']
-            with open(os.path.join(batch_path, 'data.json'), 'r') as f:
+            with open(os.path.join(epoc_batch_path, 'data.json'), 'r') as f:
                 files = json.load(f)
             predictions = self.model.predict(X)
             for index in range(y.shape[0]):
