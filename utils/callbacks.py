@@ -21,12 +21,13 @@ class ValLog(Callback):
     def on_epoch_end(self, epoch, logs=None):
         for dataset in self.datasets:
             self.send_results(epoch, dataset)
-
-    def on_epoch_begin(self, epoch, logs=None):
-        print(epoch, logs)
-        for dataset in self.datasets:
-            print(dataset.task)
             dataset.epoc_path = tempfile.TemporaryDirectory()
+    #
+    # def on_epoch_begin(self, epoch, logs=None):
+    #     print(epoch, logs)
+    #     for dataset in self.datasets:
+    #         print(dataset.task)
+    #
 
     def send_results(self, epoch, dataset):
         print(epoch, dataset.task)

@@ -2,6 +2,7 @@ import glob
 import json
 import os
 import os.path
+import tempfile
 
 import numpy as np
 import tensorflow as tf
@@ -105,7 +106,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.line_size = line_size
         self.data = init_data(self.files)
         self.indexes = np.arange(len(self.data))
-        self.epoc_path = None
+        self.epoc_path = tempfile.TemporaryDirectory()
         print("data: ", len(self.data))
         print("classes: ", self.classes)
 
