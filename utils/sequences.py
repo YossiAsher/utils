@@ -140,7 +140,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         print(self.epoc_path.name)
         # print(self.last_epoc_path.name)
         if self.last_epoc_path and os.path.exists(self.last_epoc_path.name):
-            shutil.rmtree(self.epoc_path.name, ignore_errors=True)
+            print("rm: ", self.last_epoc_path.name)
+            shutil.rmtree(self.last_epoc_path.name, ignore_errors=True)
         self.last_epoc_path = self.epoc_path
         self.epoc_path = tempfile.TemporaryDirectory()
         print(self.epoc_path.name)
