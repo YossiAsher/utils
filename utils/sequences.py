@@ -108,6 +108,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.data = init_data(self.files)
         self.indexes = np.arange(len(self.data))
         self.epoc_path = tempfile.TemporaryDirectory()
+        self.last_epoc_path = None
         self.on_epoch_end()
         print("data: ", len(self.data))
         print("classes: ", self.classes)
@@ -124,6 +125,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         data_temp = [self.data[k] for k in indexes]
 
         print('__getitem__', index, self.task)
+        print(self.epoc_path.name)
+        print(os.listdir(self.epoc_path.name))
         # Generate data
         X, y, files = self.__data_generation(data_temp)
         write_to_files(X, y, files, os.path.join(self.epoc_path.name, str(index)))
@@ -134,12 +137,14 @@ class DataGenerator(tf.keras.utils.Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
-    def clean_epoc_path(self):
         print(self.epoc_path.name)
-        if self.epoc_path and os.path.exists(self.epoc_path.name):
+        print(self.last_epoc_path.name)
+        if self.last_epoc_path and os.path.exists(self.last_epoc_path.name):
             shutil.rmtree(self.epoc_path.name, ignore_errors=True)
+        self.last_epoc_path = self.epoc_path
         self.epoc_path = tempfile.TemporaryDirectory()
         print(self.epoc_path.name)
+        print(self.last_epoc_path.name)
 
     def __data_generation(self, data_temp):
         """Generates data containing batch_size samples"""
@@ -163,7 +168,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                         out = 1
 
             np.random.shuffle(segments)
-            X[i, ] = segments
+            X[i,] = segments
             y[i] = out
             files.append(file)
         return X, y, files
@@ -176,6 +181,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         paths = normalize_path_scale(paths, max_total)
         for path in paths:
             for segment in path:
-                segments[index, ] = segment_to_array(0, segment)
+                segments[index,] = segment_to_array(0, segment)
                 index += 1
         return paths, segments, index
