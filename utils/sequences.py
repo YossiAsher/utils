@@ -122,7 +122,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y, files = self.__data_generation(data_temp)
-        if self.debug:
+        if self.debug and self.epoc_path:
             data_path = os.path.join(self.epoc_path.name, str(index))
             if not os.path.exists(data_path) or len(os.listdir(data_path)) == 0:
                 write_to_files(X, y, files, data_path)
