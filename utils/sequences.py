@@ -92,7 +92,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.supervised = supervised
         self.task = task
         self.debug = debug
-        self.path = f"{path}/{task}/svg"
+        self.path = f"{path}/svg/{task}"
         self.files = set(glob.glob(f"{self.path}/**/*.svg", recursive=True))
         self.classes = os.listdir(self.path)
         self.classes.sort()
