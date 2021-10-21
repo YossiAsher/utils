@@ -16,21 +16,15 @@ class ValLog(Callback):
         self.datasets = datasets
         self.table_name = table
         self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
-        self.run = wandb.init(project=self.project, job_type="inference", name=self.run)
+        self.run = wandb.init(project=self.project, job_type="inference", name=self.run, reinit=True)
 
     def on_epoch_end(self, epoch, logs=None):
+        print("on_epoch_end: epoch=", epoch)
         for dataset in self.datasets:
             self.send_results(epoch, dataset)
             dataset.epoc_path = tempfile.TemporaryDirectory()
-    #
-    # def on_epoch_begin(self, epoch, logs=None):
-    #     print(epoch, logs)
-    #     for dataset in self.datasets:
-    #         print(dataset.task)
-    #
 
     def send_results(self, epoch, dataset):
-        print(epoch, dataset.task)
         predictions_table = wandb.Table(columns=self.columns)
         for batch in range(len(dataset)):
             epoc_batch_path = os.path.join(dataset.epoc_path.name, str(batch))

@@ -121,11 +121,9 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Find list of IDs
         data_temp = [self.data[k] for k in indexes]
 
-        print('__getitem__', index, self.task)
         # Generate data
         X, y, files = self.__data_generation(data_temp)
         if self.debug:
-            print(self.epoc_path.name)
             data_path = os.path.join(self.epoc_path.name, str(index))
             if not os.path.exists(data_path) or len(os.listdir(data_path)) == 0:
                 write_to_files(X, y, files, data_path)
