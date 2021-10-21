@@ -109,7 +109,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.indexes = np.arange(len(self.data))
         self.epoc_path = tempfile.TemporaryDirectory()
         self.last_epoc_path = None
-        self.on_epoch_end()
         print("data: ", len(self.data))
         print("classes: ", self.classes)
 
@@ -139,13 +138,13 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         print(self.epoc_path.name)
         # print(self.last_epoc_path.name)
-        if self.last_epoc_path and os.path.exists(self.last_epoc_path.name):
-            print("rm: ", self.last_epoc_path.name)
-            shutil.rmtree(self.last_epoc_path.name, ignore_errors=True)
-        self.last_epoc_path = self.epoc_path
+        # if self.last_epoc_path and os.path.exists(self.last_epoc_path.name):
+        #     print("rm: ", self.last_epoc_path.name)
+        #     shutil.rmtree(self.last_epoc_path.name, ignore_errors=True)
+        # self.last_epoc_path = self.epoc_path
         self.epoc_path = tempfile.TemporaryDirectory()
         print(self.epoc_path.name)
-        print(self.last_epoc_path.name)
+        # print(self.last_epoc_path.name)
 
     def __data_generation(self, data_temp):
         """Generates data containing batch_size samples"""
