@@ -22,7 +22,7 @@ class ValLog(Callback):
     def on_epoch_end(self, epoch, logs=None):
         for dataset in self.datasets:
             self.send_results(epoch, dataset)
-            shutil.rmtree(dataset.epoc_path.name, ignore_errors=True)
+            dataset.epoc_path.cleanup()
             dataset.epoc_path = tempfile.TemporaryDirectory()
 
     def send_results(self, epoch, dataset):
