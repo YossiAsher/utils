@@ -19,10 +19,13 @@ class ValLog(Callback):
         self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
         self.run = wandb.init(project=self.project, job_type="inference", name=self.run, reinit=True)
 
+    def on_train_begin(self, logs=None):
+        for dataset in self.datasets:
+            dataset.epoc_path = tempfile.TemporaryDirectory()
+
     def on_epoch_end(self, epoch, logs=None):
         for dataset in self.datasets:
             self.send_results(epoch, dataset)
-            dataset.epoc_path.cleanup()
             dataset.epoc_path = tempfile.TemporaryDirectory()
 
     def send_results(self, epoch, dataset):
