@@ -1,6 +1,7 @@
 import json
 import os.path
 import tempfile
+import shutil
 
 import numpy as np
 import wandb
@@ -19,9 +20,9 @@ class ValLog(Callback):
         self.run = wandb.init(project=self.project, job_type="inference", name=self.run, reinit=True)
 
     def on_epoch_end(self, epoch, logs=None):
-        print("on_epoch_end: epoch=", epoch)
         for dataset in self.datasets:
             self.send_results(epoch, dataset)
+            shutil.rmtree(dataset.epoc_path.name, ignore_errors=True)
             dataset.epoc_path = tempfile.TemporaryDirectory()
 
     def send_results(self, epoch, dataset):
