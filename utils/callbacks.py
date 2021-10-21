@@ -9,15 +9,14 @@ from tensorflow.keras.callbacks import Callback
 
 class ValLog(Callback):
 
-    def __init__(self, datasets=None, table="predictions", project=None, run=None):
+    def __init__(self, datasets=None, table="predictions"):
         super().__init__()
-        self.project = project
-        self.run = run
         self.datasets = datasets
         self.table_name = table
         self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
 
     def on_train_begin(self, logs=None):
+        print("on_train_begin")
         for dataset in self.datasets:
             dataset.epoc_path = tempfile.TemporaryDirectory()
 
