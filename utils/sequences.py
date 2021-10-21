@@ -125,10 +125,12 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         print('__getitem__', index, self.task)
         print(self.epoc_path.name)
-        print(os.listdir(self.epoc_path.name))
+        data_path = os.path.join(self.epoc_path.name, str(index))
+        print(os.listdir(data_path))
         # Generate data
         X, y, files = self.__data_generation(data_temp)
-        write_to_files(X, y, files, os.path.join(self.epoc_path.name, str(index)))
+        if len(os.listdir(data_path)) == 0:
+            write_to_files(X, y, files, data_path)
         return X, y
 
     def on_epoch_end(self):
