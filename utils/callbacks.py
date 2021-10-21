@@ -16,7 +16,6 @@ class ValLog(Callback):
         self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
 
     def on_train_begin(self, logs=None):
-        print("on_train_begin")
         for dataset in self.datasets:
             dataset.epoc_path = tempfile.TemporaryDirectory()
 

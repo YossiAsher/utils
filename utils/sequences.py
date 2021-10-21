@@ -86,14 +86,13 @@ def write_to_files(X, y, files, batch_path):
 
 
 class DataGenerator(tf.keras.utils.Sequence):
-
     def __init__(self, task, path, batch_size, dim_size, input_shape, line_size=70,
                  supervised=False, shuffle=True, debug=False):
         self.input_shape = input_shape
         self.supervised = supervised
         self.task = task
         self.debug = debug
-        self.path = f"{path}/{task}"
+        self.path = f"{path}/{task}/svg"
         self.files = set(glob.glob(f"{self.path}/**/*.svg", recursive=True))
         self.classes = os.listdir(self.path)
         self.classes.sort()
@@ -123,7 +122,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y, files = self.__data_generation(data_temp)
         if self.epoc_path:
-            print("__getitem__")
             data_path = os.path.join(self.epoc_path.name, str(index))
             if not os.path.exists(data_path) or len(os.listdir(data_path)) == 0:
                 write_to_files(X, y, files, data_path)
