@@ -1,6 +1,6 @@
 import wandb
 
-from sequences import DataGenerator
+from utils.sequences import DataGenerator
 
 
 def get_datasets(project, artifact, batch_size, dim_size, input_shape):
