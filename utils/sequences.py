@@ -17,7 +17,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.debug = debug
         self.path = f"{path}/svg/{task}"
         self.files = set(glob.glob(f"{self.path}/**/*.svg", recursive=True))
-        self.classes = os.listdir(self.path)
+        self.classes = os.listdir(self.path) if self.supervised else [0, 1]
         self.classes.sort()
         self.shuffle = shuffle
         self.batch_size = batch_size

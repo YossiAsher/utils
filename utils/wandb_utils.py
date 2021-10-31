@@ -17,10 +17,11 @@ def get_datasets(project, artifact, batch_size, dim_size, input_shape):
                                   input_shape=input_shape, shuffle=False, supervised=True)
     test_dataset = DataGenerator(task='test', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
                                  input_shape=input_shape, shuffle=False, supervised=True)
-    unsupervised = DataGenerator(task='unsupervised', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
-                                 input_shape=input_shape, shuffle=False, supervised=False)
+    unsupervised_dataset = DataGenerator(task='unsupervised', path=data_split_dir, batch_size=batch_size,
+                                         dim_size=dim_size,
+                                         input_shape=input_shape, shuffle=False, supervised=False)
 
-    return train_dataset, test_dataset, unsupervised
+    return train_dataset, test_dataset, unsupervised_dataset
 
 
 def create_raw_data(project, artifact, path):
