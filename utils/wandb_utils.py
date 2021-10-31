@@ -17,8 +17,10 @@ def get_datasets(project, artifact, batch_size, dim_size, input_shape):
                                   input_shape=input_shape, shuffle=False, supervised=True)
     test_dataset = DataGenerator(task='test', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
                                  input_shape=input_shape, shuffle=False, supervised=True)
+    unsupervised = DataGenerator(task='unsupervised', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
+                                 input_shape=input_shape, shuffle=False, supervised=False)
 
-    return train_dataset, test_dataset
+    return train_dataset, test_dataset, unsupervised
 
 
 def create_raw_data(project, artifact, path):
@@ -48,8 +50,10 @@ def split_data(project, raw_artifact, split_artifact):
             full_path = os.path.join(data_dir, label, img_file)
             split = "test" if np.random.rand() > 0.8 else "train"
             data_split_at.add_file(full_path, name=f"svg/{split}/{label}/{img_id}.svg")
+            data_split_at.add_file(full_path, name=f"svg/unsupervised/{label}/{img_id}.svg")
             png_full_path = full_path.replace('.svg', '.png')
             cairosvg.svg2png(url=full_path, write_to=png_full_path, parent_width=100, parent_height=100)
             data_split_at.add_file(png_full_path, name=f"png/{split}/{label}/{img_id}.png")
+            data_split_at.add_file(png_full_path, name=f"png/unsupervised/{label}/{img_id}.png")
 
     run.log_artifact(data_split_at)
