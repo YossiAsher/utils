@@ -8,13 +8,13 @@ import numpy as np
 from utils.sequences import DataGenerator
 
 
-def get_datasets(project, artifact, batch_size, dim_size, input_shape):
+def get_datasets(project, artifact, batch_size, dim_size, input_shape, shuffle=False):
     run = wandb.init(project=project, job_type="download", reinit=True)
     data_split_at = run.use_artifact(artifact + ":latest")
     data_split_dir = data_split_at.download()
 
     train_dataset = DataGenerator(task='train', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
-                                  input_shape=input_shape, shuffle=False, supervised=True)
+                                  input_shape=input_shape, shuffle=shuffle, supervised=True)
     test_dataset = DataGenerator(task='test', path=data_split_dir, batch_size=batch_size, dim_size=dim_size,
                                  input_shape=input_shape, shuffle=False, supervised=True)
     unsupervised_dataset = DataGenerator(task='unsupervised', path=data_split_dir, batch_size=batch_size,
