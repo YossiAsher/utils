@@ -13,7 +13,7 @@ class ValLog(Callback):
         super().__init__()
         self.datasets = datasets
         self.table_name = table
-        self.columns = ["epoch", "batch", "index", "dataset", "location", "file", "svg", "target", "prediction"]
+        self.columns = ["epoch", "batch", "index", "dataset", "file", "svg", "target", "prediction"]
 
     def on_train_begin(self, logs=None):
         for dataset in self.datasets:
@@ -39,8 +39,7 @@ class ValLog(Callback):
                 target = dataset.classes[y[index]]
                 prediction = dataset.classes[np.argmax(predictions[index])]
                 png_file = files[index].replace('svg', 'png')
-                file = png_file.split('/')[-1].split('.')[0]
-                row = [epoch, batch, index, dataset.task, dataset.epoc_path.name,
-                       file, wandb.Image(png_file), target, prediction]
+                file = f"{target}-{png_file.split('/')[-1].split('.')[0]}"
+                row = [epoch, batch, index, dataset.task, file, wandb.Image(png_file), target, prediction]
                 predictions_table.add_data(*row)
         wandb.run.log({f"{self.table_name}_{dataset.task}": predictions_table})
