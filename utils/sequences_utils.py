@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 
 import numpy as np
 from svgpathtools import Path, CubicBezier, svg2paths
@@ -77,6 +78,6 @@ def get_random_line(line_size):
 
 def write_to_files(X, y, files, batch_path):
     os.makedirs(batch_path, exist_ok=True)
-    np.savez_compressed(os.path.join(batch_path, 'data'), X=X, y=y)
-    with open(os.path.join(batch_path, 'data.json'), 'w') as f:
+    np.savez_compressed(str(pathlib.Path(batch_path) / 'data'), X=X, y=y)
+    with open(str(pathlib.Path(batch_path) / 'data.json'), 'w') as f:
         json.dump(files, f)

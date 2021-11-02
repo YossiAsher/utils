@@ -1,6 +1,6 @@
 import json
-import os.path
 import tempfile
+from pathlib import Path
 
 import numpy as np
 import wandb
@@ -27,12 +27,12 @@ class ValLog(Callback):
     def send_results(self, epoch, dataset):
         predictions_table = wandb.Table(columns=self.columns)
         for batch in range(len(dataset)):
-            epoc_batch_path = os.path.join(dataset.epoc_path.name, str(batch))
-            data_path = os.path.join(epoc_batch_path, 'data.npz')
-            loaded = np.load(data_path, allow_pickle=True)
+            epoc_batch_path = Path(dataset.epoc_path.name) / str(batch)
+            data_path = Path(epoc_batch_path) / 'data.npz'
+            loaded = np.load(str(data_path), allow_pickle=True)
             X = loaded['X']
             y = loaded['y']
-            with open(os.path.join(epoc_batch_path, 'data.json'), 'r') as f:
+            with open(str(Path(epoc_batch_path) / 'data.json'), 'r') as f:
                 files = json.load(f)
             predictions = self.model.predict(X)
             for index in range(y.shape[0]):

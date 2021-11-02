@@ -1,6 +1,6 @@
 import glob
 import os
-import os.path
+from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
@@ -43,8 +43,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y, files = self.__data_generation(indexes)
         if self.epoc_path:
-            data_path = os.path.join(self.epoc_path.name, str(index))
-            if not os.path.exists(data_path) or len(os.listdir(data_path)) == 0:
+            data_path = Path(self.epoc_path.name) / str(index)
+            if not data_path.exists(data_path) or len(os.listdir(data_path)) == 0:
                 write_to_files(X, y, files, data_path)
         return X, y
 
