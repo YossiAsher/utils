@@ -19,7 +19,7 @@ def get_datasets(project, artifact, batch_size, dim_size, input_shape, shuffle=F
                                  input_shape=input_shape, shuffle=False, supervised=True)
     unsupervised_dataset = DataGenerator(task='unsupervised', path=data_split_dir, batch_size=batch_size,
                                          dim_size=dim_size,
-                                         input_shape=input_shape, shuffle=False, supervised=False)
+                                         input_shape=input_shape, shuffle=shuffle, supervised=False)
 
     return train_dataset, test_dataset, unsupervised_dataset
 
