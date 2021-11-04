@@ -50,11 +50,11 @@ def split_data(project, raw_artifact, split_artifact):
         images_per_label = os.listdir(data_dir_path / label)
         for img_file in images_per_label:
             img_id = img_file.split('.')[0]
-            full_path = data_dir_path / label / img_file
+            full_path = str(data_dir_path / label / img_file)
             split = "test" if np.random.rand() > 0.8 else "train"
-            data_split_at.add_file(str(full_path), name=f"svg/{split}/{label}/{img_id}.svg")
-            data_split_at.add_file(str(full_path), name=f"svg/unsupervised/{label}/{img_id}.svg")
-            png_full_path = str(full_path).replace('.svg', '.png')
+            data_split_at.add_file(full_path, name=f"svg/{split}/{label}/{img_id}.svg")
+            data_split_at.add_file(full_path, name=f"svg/unsupervised/{label}/{img_id}.svg")
+            png_full_path = full_path.replace('.svg', '.png')
             cairosvg.svg2png(url=full_path, write_to=png_full_path, parent_width=100, parent_height=100)
             data_split_at.add_file(png_full_path, name=f"png/{split}/{label}/{img_id}.png")
             data_split_at.add_file(png_full_path, name=f"png/unsupervised/{label}/{img_id}.png")
