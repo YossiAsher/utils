@@ -44,7 +44,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         X, y, files = self.__data_generation(indexes)
         if self.epoc_path:
             data_path = Path(self.epoc_path.name) / str(index)
-            if not data_path.exists(data_path) or len(os.listdir(data_path)) == 0:
+            if not data_path.exists() or len(os.listdir(data_path)) == 0:
                 write_to_files(X, y, files, data_path)
         return X, y
 
